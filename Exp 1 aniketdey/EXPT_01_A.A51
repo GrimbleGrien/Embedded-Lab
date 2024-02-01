@@ -1,0 +1,115 @@
+ORG 8100H
+			
+			POPULATEINIT:
+			MOV DPTR, #9000H
+			MOV R0, #64H
+			
+			POPULATE:			; initialise array of 100 bytes
+			MOV A, R0
+			MOVX @DPTR, A
+			INC DPTR
+			DJNZ R0, POPULATE
+			
+			SORTINIT:
+			MOV R0, #64H		; outer loop index
+			
+			SORT1:
+			MOV DPTR, #9000H
+			MOVX A, @DPTR
+			MOV R2,A
+			MOV R1, #63H		; inner loop index
+			
+			SORT2:
+			INC DPTR
+			MOVX A,@DPTR
+			MOV R3,A
+			CLR C
+			SUBB A,R2
+			
+			JC SWAPOP
+			JMP SKIPSWAP
+			
+			SWAPOP: 
+			MOV A, R2
+			MOV R4, A
+			MOV A, R3
+			MOV R2, A
+			MOV A, R4
+			MOV R3, A
+			
+			MOV A,R3
+			MOVX @DPTR,A
+			DEC DPL
+			MOV A,R2
+			MOVX @DPTR,A
+			INC DPTR
+			
+			
+			SKIPSWAP:
+			MOV A, R3
+			MOV R2, A
+		
+			DJNZ R1,SORT2
+			DJNZ R0,SORT1
+			
+			
+			BSINIT:
+			MOV DPTR, #9550H
+			MOV A,#0FFH
+			MOVX @DPTR,A	; default storing -1
+			MOV R0,#32H
+			MOV R1,#00H
+			MOV R3,#63H
+			
+			BSWHILELOOP:
+			MOV A,R3
+			CLR C
+			SUBB A,R1
+			JC LOOP
+			MOV B,#02H
+			MOV A,R1
+			ADD A,R3
+			DIV AB
+			MOV R2,A
+			JMP GETMID
+			
+			BSCOMPARE:
+			MOV A,R0
+			CLR C
+			SUBB A,R4
+BSKEYISEQUAL:
+			JZ SUCCESS
+BSKEYISGREATER:
+			JNC SETFIRST
+BSKEYISLESSER:
+			DEC R2
+			MOV A,R2
+			MOV R3,A
+			JMP BSWHILELOOP
+						
+			SETFIRST:
+			INC R2
+			MOV A,R2
+			MOV R1,A
+			JMP BSWHILELOOP
+			
+			SUCCESS:
+			MOV DPTR,#9550H
+			MOV A,R2
+			MOVX @DPTR,A
+			JMP LOOP
+			
+			GETMID:
+			MOV DPTR,#9000H
+			MOV A, R2
+			ADD A, DPL
+			MOV DPL, A
+			MOVX A, @DPTR
+			MOV R4, A
+			JMP BSCOMPARE
+			
+			
+			LOOP:
+			JMP LOOP
+			
+			END
