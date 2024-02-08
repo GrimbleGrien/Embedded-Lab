@@ -4,6 +4,7 @@ MOV DPTR, #9000H ; Point to the beginning of the truth table
 MOV R1, #8 ; Initialize R1 for looping through input combinations
 MOV R2, #0;
 MOV R6, #1;
+MOV B, #2;
 
 INIT:
 	MOV A, R2;
@@ -16,13 +17,15 @@ INIT:
     MOV R1, #15;
 
 INITIALIZE:
+    MOV R2, #5;
     MOV P1, R1 ; Display the current input combination on LEDs
 
     MOV A, R1 ; Load the current input combination to A
     MOVX A, @DPTR ; Load the corresponding truth value from the table
-    MOV P2.7, A ; Display the output on an additional LED (assuming P2.7 for output)
 
+    SET P1.5, A ; Display the output on an additional LED (assuming P2.7 for output)
     ACALL DELAY ; Introduce a delay for visibility
+    CLR P1.5;
 
     DJNE R1, INITIALIZE ; Continue the loop until all combinations are displayed
 
